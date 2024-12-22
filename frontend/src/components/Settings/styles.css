@@ -1,0 +1,74 @@
+.settings-button {
+  position: fixed !important;
+  top: 1rem;
+  right: 1rem;
+  z-index: 1000;
+}
+
+.settings-container {
+  padding: 24px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.settings-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.settings-section-title {
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+.settings-drawer {
+  width: 300px;
+}
+
+.settings-drawer .MuiDrawer-paper {
+  width: 300px;
+  padding: 1rem;
+}
+
+.font-size-slider {
+  width: 150px;
+  margin: 0 1rem;
+}
+
+.voice-select {
+  width: 100%;
+}
+
+.voice-select .MuiMenuItem-root {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.voice-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.voice-name {
+  font-weight: 500;
+}
+
+.voice-language {
+  color: rgba(0, 0, 0, 0.6);
+  font-size: 0.875rem;
+}
+
+.MuiListItem-root {
+  padding: 1rem !important;
+}
+
+.settings-footer {
+  margin-top: auto;
+  padding-top: 24px;
+}

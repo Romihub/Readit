@@ -1,0 +1,18 @@
+.text-display {
+  padding: 2rem;
+  margin: 2rem;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.text-content {
+  line-height: 1.6;
+  font-size: 1.1rem;
+}
+
+.highlighted {
+  background-color: #fff3cd;
+  padding: 2px 0;
+  border-radius: 3px;
+  transition: background-color 0.3s ease;
+}

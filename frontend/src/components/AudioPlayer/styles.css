@@ -1,0 +1,42 @@
+.audio-player {
+  padding: 1rem;
+  margin: 1rem;
+  border-radius: 8px;
+  background-color: #f5f5f5;
+}
+
+.controls {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.progress {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.progress-bar {
+  flex-grow: 1;
+  height: 8px !important;
+  border-radius: 4px;
+}
+
+.speed-control {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0 1rem;
+}
+
+.speed-icon {
+  color: #666;
+}
+
+.speed-slider {
+  flex-grow: 1;
+  margin: 0 1rem;
+}

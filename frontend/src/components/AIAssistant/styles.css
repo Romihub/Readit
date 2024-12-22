@@ -1,0 +1,40 @@
+.ai-assistant {
+  padding: 2rem;
+  margin: 2rem;
+}
+
+.ai-assistant-container {
+  padding: 20px;
+  margin: 20px 0;
+}
+
+.question-form {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.question-input {
+  display: flex;
+  gap: 10px;
+  margin: 20px 0;
+}
+
+.ask-button {
+  min-width: 100px;
+}
+
+.error-message {
+  margin: 10px 0;
+}
+
+.answer-container {
+  background-color: #f5f5f5;
+  padding: 15px;
+  border-radius: 4px;
+  margin-top: 20px;
+}
+
+.answer-container p {
+  white-space: pre-wrap;
+}

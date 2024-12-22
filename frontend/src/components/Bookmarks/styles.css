@@ -1,0 +1,35 @@
+.bookmarks-button {
+  position: fixed !important;
+  top: 1rem;
+  right: 4rem;
+  z-index: 1000;
+}
+
+.bookmarks-drawer {
+  width: 300px;
+}
+
+.bookmarks-drawer .MuiDrawer-paper {
+  width: 300px;
+  padding: 1rem;
+}
+
+.bookmarks-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+.bookmark-item {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.bookmark-item .MuiListItemSecondaryAction-root {
+  right: 0;
+}
+
+.bookmark-item .MuiListItemText-secondary {
+  white-space: pre-wrap;
+}
