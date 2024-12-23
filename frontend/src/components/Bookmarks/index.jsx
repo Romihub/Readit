@@ -1,163 +1,210 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
-  Drawer,
+  Box,
   IconButton,
   List,
   ListItem,
   ListItemText,
   ListItemSecondaryAction,
   Typography,
-  TextField,
+  Paper,
   Button,
   Dialog,
   DialogTitle,
   DialogContent,
   DialogActions,
+  TextField,
+  Tooltip,
 } from '@mui/material';
 import BookmarkIcon from '@mui/icons-material/Bookmark';
 import DeleteIcon from '@mui/icons-material/Delete';
-import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import { useAppContext } from '../../contexts/AppContext';
 import { getBookmarks, addBookmark, deleteBookmark } from '../../api';
 import './styles.css';
 
 const Bookmarks = () => {
-  const [open, setOpen] = useState(false);
+  const { sessionId, segments, currentSegment } = useAppContext();
   const [bookmarks, setBookmarks] = useState([]);
-  const [dialogOpen, setDialogOpen] = useState(false);
+  const [open, setOpen] = useState(false);
   const [note, setNote] = useState('');
-  
-  const {
-    sessionId,
-    currentPosition,
-    setCurrentPosition,
-    currentSegment,
-    setIsPlaying,
-  } = useAppContext();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  const fetchBookmarks = useCallback(async () => {
-    if (!sessionId) return;
-    
-    try {
-      const data = await getBookmarks(sessionId);
-      setBookmarks(Array.isArray(data) ? data : []);
-    } catch (error) {
-      console.error('Failed to fetch bookmarks:', error);
-      setBookmarks([]);
+  useEffect(() => {
+    if (sessionId) {
+      loadBookmarks();
     }
   }, [sessionId]);
 
-  useEffect(() => {
-    fetchBookmarks();
-  }, [fetchBookmarks]);
+  const loadBookmarks = async () => {
+    try {
+      const data = await getBookmarks(sessionId);
+      setBookmarks(data);
+    } catch (error) {
+      console.error('Failed to load bookmarks:', error);
+      setError('Failed to load bookmarks');
+    }
+  };
 
   const handleAddBookmark = async () => {
-    if (!sessionId) return;
+    if (!sessionId || currentSegment === undefined) return;
 
+    setLoading(true);
+    setError(null);
     try {
-      await addBookmark(sessionId, {
-        position: currentPosition,
+      const bookmark = {
         segment_index: currentSegment,
-        note: note
-      });
-      setDialogOpen(false);
+        text: segments[currentSegment],
+        note: note.trim(),
+      };
+
+      console.log('Adding bookmark:', bookmark);
+      await addBookmark(sessionId, bookmark);
+      
+      // Reload bookmarks to get the updated list
+      await loadBookmarks();
+      
+      // Clear form and close dialog
       setNote('');
-      fetchBookmarks();
+      setOpen(false);
     } catch (error) {
       console.error('Failed to add bookmark:', error);
+      setError('Failed to add bookmark');
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleDeleteBookmark = async (bookmarkId) => {
-    if (!sessionId) return;
+    if (!sessionId || !bookmarkId) return;
 
     try {
+      console.log('Deleting bookmark:', bookmarkId);
       await deleteBookmark(sessionId, bookmarkId);
-      fetchBookmarks();
+      
+      // Reload bookmarks to get the updated list
+      await loadBookmarks();
     } catch (error) {
       console.error('Failed to delete bookmark:', error);
+      setError('Failed to delete bookmark');
     }
   };
 
-  const handleJumpToBookmark = (position, segmentIndex) => {
-    setCurrentPosition(position);
-    setIsPlaying(false);
+  const handleOpen = () => {
+    setOpen(true);
+    setError(null);
+  };
+
+  const handleClose = () => {
     setOpen(false);
+    setNote('');
+    setError(null);
   };
 
   return (
-    <>
-      <IconButton onClick={() => setOpen(true)} color="inherit">
-        <BookmarkIcon />
-      </IconButton>
-
-      <Drawer anchor="right" open={open} onClose={() => setOpen(false)}>
-        <div className="bookmarks-drawer">
-          <div className="bookmarks-header">
-            <Typography variant="h6">Bookmarks</Typography>
-            <Button
-              variant="contained"
+    <Box className="bookmarks-container">
+      <Box className="bookmarks-header">
+        <Typography variant="h6">
+          Bookmarks
+        </Typography>
+        <Tooltip title="Add Bookmark">
+          <span>
+            <IconButton
+              onClick={handleOpen}
+              disabled={!sessionId || currentSegment === undefined}
               color="primary"
-              onClick={() => setDialogOpen(true)}
             >
-              Add Bookmark
-            </Button>
-          </div>
+              <BookmarkIcon />
+            </IconButton>
+          </span>
+        </Tooltip>
+      </Box>
 
-          <List>
-            {bookmarks && bookmarks.length > 0 ? (
-              bookmarks.map((bookmark) => (
-                <ListItem key={bookmark.id}>
-                  <ListItemText
-                    primary={`Segment ${bookmark.segment_index + 1}`}
-                    secondary={bookmark.note || 'No note'}
-                  />
-                  <ListItemSecondaryAction>
-                    <IconButton
-                      edge="end"
-                      onClick={() => handleJumpToBookmark(bookmark.position, bookmark.segment_index)}
-                    >
-                      <PlayArrowIcon />
-                    </IconButton>
-                    <IconButton
-                      edge="end"
-                      onClick={() => handleDeleteBookmark(bookmark.id)}
-                    >
-                      <DeleteIcon />
-                    </IconButton>
-                  </ListItemSecondaryAction>
-                </ListItem>
-              ))
-            ) : (
-              <ListItem>
-                <ListItemText primary="No bookmarks yet" />
-              </ListItem>
-            )}
-          </List>
-        </div>
-      </Drawer>
+      {error && (
+        <Typography color="error" className="error-message">
+          {error}
+        </Typography>
+      )}
 
-      <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)}>
+      <List className="bookmarks-list">
+        {bookmarks.map((bookmark) => (
+          <ListItem
+            key={bookmark.id}
+            className="bookmark-item"
+          >
+            <ListItemText
+              primary={`Segment ${bookmark.segment_index + 1}`}
+              secondary={
+                <>
+                  <Typography
+                    component="span"
+                    variant="body2"
+                    color="textPrimary"
+                  >
+                    {bookmark.text.substring(0, 100)}...
+                  </Typography>
+                  {bookmark.note && (
+                    <Typography
+                      component="p"
+                      variant="caption"
+                      color="textSecondary"
+                    >
+                      Note: {bookmark.note}
+                    </Typography>
+                  )}
+                </>
+              }
+            />
+            <ListItemSecondaryAction>
+              <IconButton
+                edge="end"
+                onClick={() => handleDeleteBookmark(bookmark.id)}
+              >
+                <DeleteIcon />
+              </IconButton>
+            </ListItemSecondaryAction>
+          </ListItem>
+        ))}
+      </List>
+
+      <Dialog
+        open={open}
+        onClose={handleClose}
+        maxWidth="sm"
+        fullWidth
+      >
         <DialogTitle>Add Bookmark</DialogTitle>
         <DialogContent>
+          <Typography variant="subtitle2" gutterBottom>
+            Current Segment:
+          </Typography>
+          <Typography variant="body2" color="textSecondary" paragraph>
+            {segments[currentSegment]?.substring(0, 200)}...
+          </Typography>
           <TextField
-            autoFocus
-            margin="dense"
-            label="Note"
-            type="text"
             fullWidth
+            multiline
+            rows={3}
+            variant="outlined"
+            label="Add a note (optional)"
             value={note}
             onChange={(e) => setNote(e.target.value)}
+            margin="normal"
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setDialogOpen(false)}>Cancel</Button>
-          <Button onClick={handleAddBookmark} color="primary">
-            Add
+          <Button onClick={handleClose}>Cancel</Button>
+          <Button
+            onClick={handleAddBookmark}
+            color="primary"
+            variant="contained"
+            disabled={loading}
+          >
+            Add Bookmark
           </Button>
         </DialogActions>
       </Dialog>
-    </>
+    </Box>
   );
 };
 

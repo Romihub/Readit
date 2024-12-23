@@ -18,10 +18,17 @@
   display: flex;
   gap: 10px;
   margin: 20px 0;
+  align-items: center;
 }
 
 .ask-button {
   min-width: 100px;
+}
+
+.mic-button {
+  min-width: 40px !important;
+  width: 40px !important;
+  height: 40px !important;
 }
 
 .error-message {
@@ -37,4 +44,10 @@
 
 .answer-container p {
   white-space: pre-wrap;
+}
+
+.success-icon {
+  color: #4caf50;
+  font-size: 2rem !important;
+  margin-right: 10px;
 }

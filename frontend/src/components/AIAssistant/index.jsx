@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   TextField,
@@ -12,19 +12,59 @@ import {
   DialogContent,
   DialogActions,
   Tooltip,
+  Fab,
 } from '@mui/material';
 import QuestionAnswerIcon from '@mui/icons-material/QuestionAnswer';
+import MicIcon from '@mui/icons-material/Mic';
+import StopIcon from '@mui/icons-material/Stop';
 import { useAppContext } from '../../contexts/AppContext';
-import { askAIQuestion } from '../../api';
+import { useSettings } from '../../contexts/SettingsContext';
+import { askAIQuestion, textToSpeech } from '../../api';
 import './styles.css';
 
 const AIAssistant = () => {
   const { sessionId, segments, currentSegment } = useAppContext();
+  const { selectedVoice } = useSettings();
   const [question, setQuestion] = useState('');
   const [answer, setAnswer] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [open, setOpen] = useState(false);
+  const [isListening, setIsListening] = useState(false);
+  const [audioResponse, setAudioResponse] = useState(null);
+
+  // Initialize speech recognition
+  const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+  recognition.continuous = true;
+  recognition.interimResults = true;
+
+  useEffect(() => {
+    recognition.onresult = (event) => {
+      const current = event.resultIndex;
+      const transcript = event.results[current][0].transcript;
+      setQuestion(transcript);
+    };
+
+    recognition.onend = () => {
+      if (isListening) {
+        recognition.start();
+      }
+    };
+
+    return () => {
+      recognition.stop();
+    };
+  }, [isListening]);
+
+  const handleStartListening = () => {
+    setIsListening(true);
+    recognition.start();
+  };
+
+  const handleStopListening = () => {
+    setIsListening(false);
+    recognition.stop();
+  };
 
   const handleAskQuestion = async () => {
     if (!question.trim() || !sessionId) return;
@@ -50,6 +90,27 @@ const AIAssistant = () => {
 
       const response = await askAIQuestion(sessionId, question, context);
       setAnswer(response);
+
+      // Convert AI response to speech if voice is selected
+      if (selectedVoice) {
+        try {
+          const audioBlob = await textToSpeech(response, selectedVoice);
+          const audioUrl = URL.createObjectURL(audioBlob);
+          const audio = new Audio(audioUrl);
+          
+          setAudioResponse(audio);
+          audio.play();
+
+          // Clean up when audio finishes
+          audio.onended = () => {
+            URL.revokeObjectURL(audioUrl);
+            setAudioResponse(null);
+          };
+        } catch (error) {
+          console.error('Failed to convert response to speech:', error);
+          // Don't set error here, as the text response is still available
+        }
+      }
     } catch (error) {
       console.error('Error getting AI response:', error);
       setError('Failed to get AI response. Please try again.');
@@ -67,9 +128,15 @@ const AIAssistant = () => {
 
   const handleOpen = () => setOpen(true);
   const handleClose = () => {
+    if (audioResponse) {
+      audioResponse.pause();
+      setAudioResponse(null);
+    }
     setOpen(false);
     setQuestion('');
     setAnswer('');
+    setIsListening(false);
+    recognition.stop();
   };
 
   return (
@@ -104,6 +171,15 @@ const AIAssistant = () => {
               onKeyPress={handleKeyPress}
               disabled={loading || !sessionId}
             />
+            <Fab
+              color={isListening ? 'secondary' : 'primary'}
+              size="small"
+              onClick={isListening ? handleStopListening : handleStartListening}
+              disabled={loading}
+              className="mic-button"
+            >
+              {isListening ? <StopIcon /> : <MicIcon />}
+            </Fab>
             <Button
               variant="contained"
               color="primary"
