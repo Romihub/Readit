@@ -10,35 +10,65 @@ export const useSettings = () => {
   return context;
 };
 
-export const SettingsProvider = ({ children }) => {
-  // Initialize state from localStorage if available
-  const [darkMode, setDarkMode] = useState(() => {
-    const saved = localStorage.getItem('darkMode');
-    return saved ? JSON.parse(saved) : false;
-  });
-  
-  const [fontSize, setFontSize] = useState(() => {
-    const saved = localStorage.getItem('fontSize');
-    return saved ? JSON.parse(saved) : 16;
-  });
-  
-  const [selectedVoice, setSelectedVoice] = useState(() => {
-    const saved = localStorage.getItem('selectedVoice');
-    return saved || 'en-US-JennyNeural';
-  });
+const getSavedValue = (key, defaultValue) => {
+  try {
+    const saved = localStorage.getItem(key);
+    if (saved === null) return defaultValue;
+    return JSON.parse(saved);
+  } catch (error) {
+    console.warn(`Error reading ${key} from localStorage:`, error);
+    return defaultValue;
+  }
+};
 
-  // Persist settings to localStorage when they change
+export const SettingsProvider = ({ children }) => {
+  const [darkMode, setDarkMode] = useState(() => 
+    getSavedValue('darkMode', false)
+  );
+  
+  const [fontSize, setFontSize] = useState(() => 
+    getSavedValue('fontSize', 16)
+  );
+  
+  const [selectedVoice, setSelectedVoice] = useState(() => 
+    getSavedValue('selectedVoice', null)
+  );
+  
+  const [wordsPerPage, setWordsPerPage] = useState(() => 
+    getSavedValue('wordsPerPage', 200)
+  );
+
+  // Save settings to localStorage
+  const saveToLocalStorage = (key, value) => {
+    try {
+      localStorage.setItem(key, JSON.stringify(value));
+    } catch (error) {
+      console.error(`Error saving ${key} to localStorage:`, error);
+    }
+  };
+
   useEffect(() => {
-    localStorage.setItem('darkMode', JSON.stringify(darkMode));
+    saveToLocalStorage('darkMode', darkMode);
+    document.documentElement.setAttribute('data-theme', darkMode ? 'dark' : 'light');
+    
+    if (darkMode) {
+      document.body.classList.add('dark-mode');
+    } else {
+      document.body.classList.remove('dark-mode');
+    }
   }, [darkMode]);
 
   useEffect(() => {
-    localStorage.setItem('fontSize', JSON.stringify(fontSize));
+    saveToLocalStorage('fontSize', fontSize);
   }, [fontSize]);
 
   useEffect(() => {
-    localStorage.setItem('selectedVoice', selectedVoice);
+    saveToLocalStorage('selectedVoice', selectedVoice);
   }, [selectedVoice]);
+
+  useEffect(() => {
+    saveToLocalStorage('wordsPerPage', wordsPerPage);
+  }, [wordsPerPage]);
 
   const value = {
     darkMode,
@@ -47,6 +77,8 @@ export const SettingsProvider = ({ children }) => {
     setFontSize,
     selectedVoice,
     setSelectedVoice,
+    wordsPerPage,
+    setWordsPerPage,
   };
 
   return (

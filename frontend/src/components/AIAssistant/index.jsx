@@ -2,25 +2,33 @@ import React, { useState, useEffect } from 'react';
 import {
   Box,
   TextField,
-  Button,
-  Typography,
-  Paper,
-  CircularProgress,
   IconButton,
+  Typography,
+  CircularProgress,
+  Fab,
   Dialog,
   DialogTitle,
   DialogContent,
   DialogActions,
-  Tooltip,
-  Fab,
+  Button,
+  Paper,
 } from '@mui/material';
-import QuestionAnswerIcon from '@mui/icons-material/QuestionAnswer';
+import SendIcon from '@mui/icons-material/Send';
 import MicIcon from '@mui/icons-material/Mic';
 import StopIcon from '@mui/icons-material/Stop';
 import { useAppContext } from '../../contexts/AppContext';
 import { useSettings } from '../../contexts/SettingsContext';
 import { askAIQuestion, textToSpeech } from '../../api';
 import './styles.css';
+
+// Initialize speech recognition
+const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+const recognition = SpeechRecognition ? new SpeechRecognition() : null;
+
+if (recognition) {
+  recognition.continuous = true;
+  recognition.interimResults = true;
+}
 
 const AIAssistant = () => {
   const { sessionId, segments, currentSegment } = useAppContext();
@@ -29,16 +37,13 @@ const AIAssistant = () => {
   const [answer, setAnswer] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [open, setOpen] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [audioResponse, setAudioResponse] = useState(null);
-
-  // Initialize speech recognition
-  const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-  recognition.continuous = true;
-  recognition.interimResults = true;
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
+    if (!recognition) return;
+
     recognition.onresult = (event) => {
       const current = event.resultIndex;
       const transcript = event.results[current][0].transcript;
@@ -52,16 +57,23 @@ const AIAssistant = () => {
     };
 
     return () => {
-      recognition.stop();
+      if (isListening) {
+        recognition.stop();
+      }
     };
   }, [isListening]);
 
   const handleStartListening = () => {
+    if (!recognition) {
+      setError('Speech recognition is not supported in your browser');
+      return;
+    }
     setIsListening(true);
     recognition.start();
   };
 
   const handleStopListening = () => {
+    if (!recognition) return;
     setIsListening(false);
     recognition.stop();
   };
@@ -78,7 +90,9 @@ const AIAssistant = () => {
       const end = Math.min(segments.length, currentSegment + 2);
       
       for (let i = start; i < end; i++) {
-        contextSegments.push(segments[i]);
+        if (segments[i]) {
+          contextSegments.push(segments[i]);
+        }
       }
       
       const context = contextSegments.join(' ');
@@ -108,7 +122,6 @@ const AIAssistant = () => {
           };
         } catch (error) {
           console.error('Failed to convert response to speech:', error);
-          // Don't set error here, as the text response is still available
         }
       }
     } catch (error) {
@@ -136,20 +149,23 @@ const AIAssistant = () => {
     setQuestion('');
     setAnswer('');
     setIsListening(false);
-    recognition.stop();
+    if (recognition) {
+      recognition.stop();
+    }
   };
 
   return (
-    <>
-      <Tooltip title="Ask AI Assistant">
-        <IconButton 
-          color="primary" 
+    <Box className="ai-assistant-container">
+      <Box className="chat-header">
+        <Typography variant="h6">Ask AI</Typography>
+        <IconButton
+          color="inherit"
           onClick={handleOpen}
           disabled={!sessionId}
         >
-          <QuestionAnswerIcon />
+          <SendIcon />
         </IconButton>
-      </Tooltip>
+      </Box>
 
       <Dialog
         open={open}
@@ -175,7 +191,7 @@ const AIAssistant = () => {
               color={isListening ? 'secondary' : 'primary'}
               size="small"
               onClick={isListening ? handleStopListening : handleStartListening}
-              disabled={loading}
+              disabled={loading || !recognition}
               className="mic-button"
             >
               {isListening ? <StopIcon /> : <MicIcon />}
@@ -212,7 +228,7 @@ const AIAssistant = () => {
           <Button onClick={handleClose}>Close</Button>
         </DialogActions>
       </Dialog>
-    </>
+    </Box>
   );
 };
 

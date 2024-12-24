@@ -8,6 +8,8 @@ from sqlalchemy.orm import sessionmaker
 import uuid
 import logging
 import os
+import asyncio
+from datetime import datetime
 
 logger = logging.getLogger(__name__)
 
@@ -64,8 +66,21 @@ def upload_document():
         logger.error(f"Error in upload_document: {str(e)}", exc_info=True)
         return jsonify({'error': str(e)}), 500
 
-@main_bp.route('/voices', methods=['GET'])
+@main_bp.route('/api/voices', methods=['GET'])
 def get_voices():
+    try:
+        # For now, return a static list of voices
+        voices = [
+            {"id": "en-US-JennyNeural", "name": "Jenny (US)", "language": "en-US"},
+            {"id": "en-GB-SoniaNeural", "name": "Sonia (UK)", "language": "en-GB"},
+            {"id": "en-AU-NatashaNeural", "name": "Natasha (AU)", "language": "en-AU"},
+        ]
+        return jsonify(voices)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@main_bp.route('/voices', methods=['GET'])
+def get_voices_legacy():
     """Get available TTS voices"""
     try:
         logger.info("Fetching available voices")
@@ -172,25 +187,71 @@ def manage_bookmarks(session_id):
         logger.error(f"Error in manage_bookmarks: {str(e)}", exc_info=True)
         return jsonify({'error': str(e)}), 500
 
+@main_bp.route('/bookmarks', methods=['POST'])
+def add_bookmark():
+    try:
+        data = request.get_json()
+        session_id = data.get('sessionId')
+        segment = data.get('segment')
+        note = data.get('note')
+
+        if not all([session_id, segment]):
+            return jsonify({'error': 'Missing required fields'}), 400
+
+        # Add bookmark logic here
+        bookmark = {
+            'id': str(uuid.uuid4()),
+            'session_id': session_id,
+            'segment': segment,
+            'note': note,
+            'created_at': datetime.now().isoformat()
+        }
+        
+        return jsonify(bookmark), 201
+
+    except Exception as e:
+        logger.error(f"Error adding bookmark: {str(e)}", exc_info=True)
+        return jsonify({'error': str(e)}), 500
+
+@main_bp.route('/bookmarks/<session_id>', methods=['GET'])
+def get_bookmarks(session_id):
+    try:
+        # Get bookmarks logic here
+        bookmarks = []  # Replace with actual database query
+        return jsonify(bookmarks)
+
+    except Exception as e:
+        logger.error(f"Error getting bookmarks: {str(e)}", exc_info=True)
+        return jsonify({'error': str(e)}), 500
+
+@main_bp.route('/bookmarks/<bookmark_id>', methods=['DELETE'])
+def delete_bookmark(bookmark_id):
+    try:
+        # Delete bookmark logic here
+        return '', 204
+
+    except Exception as e:
+        logger.error(f"Error deleting bookmark: {str(e)}", exc_info=True)
+        return jsonify({'error': str(e)}), 500
+
 @main_bp.route('/ask', methods=['POST'])
 def ask_question():
-    """Ask AI assistant a question about the current text"""
     try:
-        data = request.json
-        session_id = data.get('session_id')
+        data = request.get_json()
         question = data.get('question')
         context = data.get('context')
-        
-        if not all([session_id, question, context]):
-            return jsonify({'error': 'Missing required fields'}), 400
-            
-        logger.info(f"Processing question for session {session_id}")
-        response = ai_assistant.ask_question(question, context)
-        
-        return jsonify({
-            'response': response
-        })
-        
+        session_id = data.get('sessionId')
+
+        if not all([question, context, session_id]):
+            return jsonify({'error': 'Missing required parameters'}), 400
+
+        # Run the async function in a synchronous context
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        response = loop.run_until_complete(ai_assistant.ask_question(question, context))
+        loop.close()
+
+        return jsonify({'response': response})
     except Exception as e:
         logger.error(f"Error in ask_question: {str(e)}", exc_info=True)
         return jsonify({'error': str(e)}), 500

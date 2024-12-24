@@ -1,0 +1,102 @@
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: #f5f5f5;
+}
+
+.app-header {
+  background-color: #1976d2;
+  color: white;
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
+}
+
+.app-title {
+  margin: 0;
+  font-weight: 500;
+  font-size: 2.5rem !important;
+}
+
+.settings-button {
+  color: white;
+}
+
+.main-container {
+  flex: 1;
+  padding: 0 1rem 2rem;
+}
+
+.content-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.main-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.upload-title {
+  text-align: center;
+  color: #666;
+  margin-bottom: 1rem;
+}
+
+.upload-area {
+  display: flex;
+  flex-direction: column;
+  padding: 2rem;
+  background-color: white;
+  border-radius: 8px;
+  min-height: 400px;
+}
+
+.bottom-section {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+.bookmarks-section {
+  height: 300px;
+  overflow-y: auto;
+}
+
+.ai-section {
+  height: 300px;
+  overflow-y: auto;
+}
+
+/* Dark mode styles */
+[data-theme='dark'] .app {
+  background-color: #303030;
+}
+
+[data-theme='dark'] .app-header {
+  background-color: #1565c0;
+}
+
+[data-theme='dark'] .upload-area,
+[data-theme='dark'] .bookmarks-section,
+[data-theme='dark'] .ai-section {
+  background-color: #424242;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .bottom-section {
+    grid-template-columns: 1fr;
+  }
+
+  .app-title {
+    font-size: 2rem !important;
+  }
+}

@@ -1,0 +1,107 @@
+## STRICT RULE: DO NOT CHANGE EXISTING FEATURES AND FUNCTIONALITIES
+Instruction to Preserve Existing Features and Functionalities:
+
+"Do not remove, delete, or alter any existing features or functionalities that are already implemented and working as intended. Please focus only on adding or improving features as described below. Ensure that any new code or modifications are integrated seamlessly without disrupting the current app's functionality."
+Focus only on adding the enhancements and improvements
+
+
+
+
+## ENHANCEMENT REQUEST:
+I want to finalize the development of my text-to-audio app with the following advanced features and improvements:
+
+1. Voice-Based Question Interaction:
+
+1a. Allow users to ask questions about the document using voice input (via a microphone).
+
+1b. Connect this voice query to the AI backend for processing and fetch the response.
+
+
+2. Continuous Reading of Pages:
+
+2a.Ensure that AI reads the document page-by-page sequentially unless manually paused.
+Include a pagination system to identify and visually indicate the current page being read.
+Use scroll events to auto-scroll to the next page as it’s being read.
+
+3. Increase the number of words per page:
+
+3a. Allow users to increase the number of words per page to a maximum of 3000 words (or any other desired value).
+3b. Provide a slider to adjust this value dynamically.
+
+
+4. Enhanced Bookmarking Feature:
+
+4a. Allow users to add bookmarks for specific sections or pages of the document.
+4b. Display all bookmarks in a sidebar or dropdown, with a clickable list for easy navigation back to those points.
+4c. Save bookmarks persistently in a database (e.g., Firebase, MongoDB) or localStorage for retrieval in future sessions.
+
+5. Offline Mode:
+
+5a. Add an option to enable offline mode, which allows users to read content without an internet connection.
+5b. Implement a local cache to store and retrieve content when offline.
+5c. Display an offline icon in the UI to indicate when offline mode is active.  
+
+6. Improved User Interface (UI) and CSS Styling:
+
+6a. Redesign the overall UI for better user experience using modern CSS frameworks (e.g., TailwindCSS, Material UI, or Bootstrap).
+6b. Apply box shadows, gradients, rounded corners, and responsive design to make the app visually appealing.
+6c. Redesign the side panel for better alignment and spacing of elements (voice dropdown, download button, etc.).
+6d. Add hover effects, tooltips, and icons to improve usability.
+
+7. Interactive Progress Tracking: - pend
+
+7a. Add a progress bar to show the percentage of the document read.
+7b. Allow users to click on the progress bar to jump to specific sections of the document.
+
+8. Customizable Reading Options:
+
+8a. Add settings for users to adjust the reading speed, voice type, and pitch.
+8b. Provide a preference menu for these customizations with persistent settings stored locally or in a database.
+
+9. Accessibility Features:
+
+9a. Ensure the app is accessible to users with disabilities, including text-to-speech support, keyboard navigation, and screen readers.
+
+10. Performance Optimization:       
+
+10a. Optimize the app for faster loading times and improved performance.    
+10b. Implement lazy loading of content to reduce initial load time.
+10c. Minimize the number of API calls to the backend to improve response time.      
+
+11. Error Handling and User Feedback:       
+
+11a. Add error handling for network issues, server errors, and other unexpected scenarios.
+11b. Provide clear and user-friendly error messages to help users understand what went wrong.
+11c. Implement a feedback mechanism for users to report issues or provide suggestions.          
+
+
+
+
+
+### Technical Details to Use
+### Frontend:
+
+For improved styling, use CSS Variables, Flexbox, or Grid Layouts for consistent design and responsiveness.
+
+### Backend:
+Ensure the /askAI endpoint processes user voice queries with AI responses.
+Store bookmarks and settings in a database (e.g., Firebase, MongoDB, or PostgreSQL).
+
+TTS Integration:
+Improved text-to-audio reading quality.
+
+Speech-to-Text:
+
+Implement voice input support for asking AI questions
+
+Accessibility Enhancements:
+
+Add ARIA roles and keyboard navigation for better accessibility.
+Ensure the app is WCAG-compliant for users with disabilities.
+
+
+## Expected Outcome
+Users can ask questions using voice and hear the AI’s response.
+AI reads documents sequentially, page by page, with visual indicators for the current page.
+A polished, modern UI with bookmarks and progress tracking for a seamless experience.
+Settings for customizable reading options and responsive design for both desktop and mobile users.

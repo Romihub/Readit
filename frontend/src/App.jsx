@@ -1,90 +1,67 @@
 import React from 'react';
-import {
-  Container,
-  Typography,
-  Alert,
-  Snackbar,
-  ThemeProvider,
-  createTheme,
-  CssBaseline,
-  Box,
-  Stack,
-} from '@mui/material';
-import { AppProvider, useAppContext } from './contexts/AppContext';
-import { SettingsProvider, useSettings } from './contexts/SettingsContext';
-import DocumentUploader from './components/DocumentUploader';
+import { Box, Container, Paper, Typography, IconButton } from '@mui/material';
+import SettingsIcon from '@mui/icons-material/Settings';
+import { AppProvider } from './contexts/AppContext';
+import { SettingsProvider } from './contexts/SettingsContext';
 import TextReader from './components/TextReader';
-import AIAssistant from './components/AIAssistant';
+import DocumentUploader from './components/DocumentUploader';
 import Settings from './components/Settings';
 import Bookmarks from './components/Bookmarks';
+import AIAssistant from './components/AIAssistant';
+import './App.css';
 
-const AppContent = () => {
-  const { error, setError, sessionId } = useAppContext();
-  const { darkMode, fontSize } = useSettings();
+function App() {
+  const [settingsOpen, setSettingsOpen] = React.useState(false);
 
-  const theme = createTheme({
-    palette: {
-      mode: darkMode ? 'dark' : 'light',
-      primary: {
-        main: '#1976d2',
-      },
-      background: {
-        default: darkMode ? '#303030' : '#ffffff',
-        paper: darkMode ? '#424242' : '#ffffff',
-      },
-    },
-    typography: {
-      fontSize: fontSize,
-    },
-  });
+  const toggleSettings = () => {
+    setSettingsOpen(!settingsOpen);
+  };
 
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <Container maxWidth="md">
-        <Typography variant="h3" component="h1" gutterBottom align="center">
-          Readit
-        </Typography>
-        
-        <Typography variant="subtitle1" gutterBottom align="center">
-          Upload a document and let AI read it for you
-        </Typography>
+    <AppProvider>
+      <SettingsProvider>
+        <div className="app">
+          <header className="app-header">
+            <Typography variant="h2" component="h1" className="app-title">
+              Readit
+            </Typography>
+            <IconButton 
+              color="inherit" 
+              className="settings-button"
+              aria-label="settings"
+              onClick={toggleSettings}
+            >
+              <SettingsIcon />
+            </IconButton>
+          </header>
 
-        <Stack spacing={2}>
-          <Box sx={{ position: 'relative' }}>
-            <DocumentUploader />
-            <Box sx={{ position: 'absolute', top: 0, right: 0, display: 'flex', gap: 1 }}>
-              <Settings />
-              <Bookmarks />
-              <AIAssistant />
+          <Container maxWidth="md" className="main-container">
+            <Box className="content-layout">
+              <Box className="main-content">
+                <Typography variant="h6" className="upload-title">
+                  Upload a document and let AI read it for you
+                </Typography>
+                <Paper elevation={3} className="upload-area">
+                  <DocumentUploader />
+                  <TextReader />
+                </Paper>
+                <Box className="bottom-section">
+                  <Paper elevation={3} className="bookmarks-section">
+                    <Bookmarks />
+                  </Paper>
+                  <Paper elevation={3} className="ai-section">
+                    <AIAssistant />
+                  </Paper>
+                </Box>
+              </Box>
             </Box>
-          </Box>
+          </Container>
 
-          {sessionId && <TextReader />}
-        </Stack>
-
-        <Snackbar
-          open={!!error}
-          autoHideDuration={6000}
-          onClose={() => setError(null)}
-        >
-          <Alert severity="error" onClose={() => setError(null)}>
-            {error}
-          </Alert>
-        </Snackbar>
-      </Container>
-    </ThemeProvider>
+          <Settings open={settingsOpen} onClose={toggleSettings} />
+        </div>
+      </SettingsProvider>
+    </AppProvider>
   );
-};
-
-const App = () => {
-  return (
-    <SettingsProvider>
-      <AppProvider>
-        <AppContent />
-      </AppProvider>
-    </SettingsProvider>
-  );
-};
+}
 
 export default App;

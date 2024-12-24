@@ -1,28 +1,19 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { ThemeProvider, createTheme } from '@mui/material/styles';
+import { ThemeProvider, createTheme } from '@mui/material';
 import CssBaseline from '@mui/material/CssBaseline';
 import App from './App';
+import './index.css';
 
 const theme = createTheme({
-  palette: {
-    primary: {
-      main: '#1976d2',
+  components: {
+    MuiDialog: {
+      styleOverrides: {
+        paper: {
+          borderRadius: '12px',
+        },
+      },
     },
-    background: {
-      default: '#ffffff',
-    },
-  },
-  typography: {
-    fontFamily: [
-      '-apple-system',
-      'BlinkMacSystemFont',
-      '"Segoe UI"',
-      'Roboto',
-      '"Helvetica Neue"',
-      'Arial',
-      'sans-serif',
-    ].join(','),
   },
 });
 

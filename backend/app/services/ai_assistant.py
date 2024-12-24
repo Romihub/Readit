@@ -1,46 +1,39 @@
 import os
-from openai import OpenAI
-from typing import Optional
+import openai
+from dotenv import load_dotenv
 import logging
+from typing import Optional
 
+load_dotenv()
 logger = logging.getLogger(__name__)
 
 class AIAssistant:
     def __init__(self):
-        self.api_key = os.getenv("OPENAI_API_KEY")
+        self.api_key = os.getenv('OPENAI_API_KEY')
         if not self.api_key:
-            error_msg = "OpenAI API Key not found in environment variables"
+            error_msg = "OpenAI API key not found in environment variables"
             logger.error(error_msg)
             raise ValueError(error_msg)
             
-        self.client = OpenAI(api_key=self.api_key)
+        # Set the API key directly
+        openai.api_key = self.api_key
+        self.model = "gpt-3.5-turbo"
         
-    def ask_question(self, question: str, context: str) -> str:
-        """Ask a question about the given context"""
+    async def ask_question(self, question: str, context: str) -> str:
+        """
+        Ask a question about the document context
+        """
         try:
             logger.info(f"Processing question: {question}")
             
-            # Create prompt with context
-            prompt = f"""
-            Context: {context}
-            
-            Question: {question}
-            
-            Please provide a clear and concise answer based on the context above.
-            """
-            
-            # Get response from OpenAI
-            response = self.client.chat.completions.create(
-                model="gpt-3.5-turbo",
+            response = await openai.ChatCompletion.create(
+                model=self.model,
                 messages=[
-                    {"role": "system", "content": "You are a helpful assistant that answers questions about text documents."},
-                    {"role": "user", "content": prompt}
-                ],
-                max_tokens=150,
-                temperature=0.7,
+                    {"role": "system", "content": "You are a helpful assistant that answers questions about documents."},
+                    {"role": "user", "content": f"Context: {context}\n\nQuestion: {question}"}
+                ]
             )
-            
-            answer = response.choices[0].message.content.strip()
+            answer = response.choices[0].message['content']
             logger.info(f"Generated answer: {answer}")
             
             return answer

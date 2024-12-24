@@ -1,29 +1,27 @@
 import React, { useState, useEffect } from 'react';
 import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
   IconButton,
-  Drawer,
   Typography,
-  Box,
+  Switch,
+  Slider,
   FormControl,
   InputLabel,
   Select,
   MenuItem,
-  Stack,
-  Switch,
-  FormControlLabel,
-  Slider,
-  Divider,
-  Button,
+  Box,
   CircularProgress,
+  Tooltip,
 } from '@mui/material';
-import SettingsIcon from '@mui/icons-material/Settings';
+import CloseIcon from '@mui/icons-material/Close';
+import InfoIcon from '@mui/icons-material/Info';
 import { useSettings } from '../../contexts/SettingsContext';
-import { useAppContext } from '../../contexts/AppContext';
 import { getVoices } from '../../api';
 import './styles.css';
 
-const Settings = () => {
-  const [open, setOpen] = useState(false);
+const Settings = ({ open, onClose }) => {
   const [voices, setVoices] = useState([]);
   const [loading, setLoading] = useState(false);
   
@@ -34,6 +32,8 @@ const Settings = () => {
     setFontSize,
     selectedVoice,
     setSelectedVoice,
+    wordsPerPage,
+    setWordsPerPage,
   } = useSettings();
 
   useEffect(() => {
@@ -46,134 +46,134 @@ const Settings = () => {
           setSelectedVoice(voiceList[0].id);
         }
       } catch (error) {
-        console.error('Failed to fetch voices:', error);
+        console.error('Error fetching voices:', error);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchVoices();
-  }, [setSelectedVoice, selectedVoice]);
+    if (open) {
+      fetchVoices();
+    }
+  }, [open, selectedVoice, setSelectedVoice]);
 
-  const fontSizes = [
-    { value: 12, label: 'Small' },
-    { value: 16, label: 'Medium' },
-    { value: 20, label: 'Large' },
-    { value: 24, label: 'Extra Large' },
-  ];
+  const handleFontSizeChange = (event, newValue) => {
+    setFontSize(newValue);
+  };
+
+  const handleWordsPerPageChange = (event, newValue) => {
+    setWordsPerPage(newValue);
+  };
 
   return (
-    <>
-      <IconButton
-        onClick={() => setOpen(true)}
-        color="inherit"
-        aria-label="settings"
-      >
-        <SettingsIcon />
-      </IconButton>
+    <Dialog 
+      open={open} 
+      onClose={onClose}
+      fullWidth
+      maxWidth="xs"
+      PaperProps={{
+        sx: {
+          minWidth: '350px',
+          maxWidth: '450px',
+          margin: '16px',
+          width: 'calc(100% - 32px)',
+        }
+      }}
+    >
+      <DialogTitle className="settings-header">
+        <Typography variant="h6">Settings</Typography>
+        <IconButton 
+          edge="end" 
+          color="inherit" 
+          onClick={onClose}
+          aria-label="close"
+        >
+          <CloseIcon />
+        </IconButton>
+      </DialogTitle>
+      <DialogContent className="settings-content">
+        <div className="settings-section">
+          <div className="settings-section-title">
+            <Typography variant="subtitle1">Appearance</Typography>
+          </div>
+          <Box display="flex" alignItems="center" mb={2}>
+            <Typography>Dark Mode</Typography>
+            <Switch
+              checked={darkMode}
+              onChange={(e) => setDarkMode(e.target.checked)}
+              color="primary"
+            />
+          </Box>
+          <Box>
+            <div className="slider-label">
+              <Typography>Font Size</Typography>
+              <Tooltip title="Adjust the size of text in the reader">
+                <InfoIcon className="info-icon" fontSize="small" />
+              </Tooltip>
+            </div>
+            <Slider
+              value={fontSize}
+              onChange={handleFontSizeChange}
+              min={12}
+              max={24}
+              step={1}
+              marks
+              valueLabelDisplay="auto"
+            />
+          </Box>
+        </div>
 
-      <Drawer
-        anchor="right"
-        open={open}
-        onClose={() => setOpen(false)}
-        PaperProps={{
-          sx: { width: { xs: '100%', sm: 400 } }
-        }}
-      >
-        <Box className="settings-container">
-          <Typography variant="h6" gutterBottom>
-            Settings
-          </Typography>
+        <div className="settings-section">
+          <div className="settings-section-title">
+            <Typography variant="subtitle1">Reading</Typography>
+          </div>
+          <Box>
+            <div className="slider-label">
+              <Typography>Words per Page</Typography>
+              <Tooltip title="Number of words to display per page">
+                <InfoIcon className="info-icon" fontSize="small" />
+              </Tooltip>
+            </div>
+            <Slider
+              value={wordsPerPage}
+              onChange={handleWordsPerPageChange}
+              min={50}
+              max={500}
+              step={50}
+              marks
+              valueLabelDisplay="auto"
+            />
+          </Box>
+        </div>
 
-          <Stack spacing={4}>
-            <Box>
-              <Typography variant="subtitle1" gutterBottom>
-                Voice Settings
-              </Typography>
-              <FormControl fullWidth>
-                <InputLabel>Select Voice</InputLabel>
-                {loading ? (
-                  <Box display="flex" alignItems="center" justifyContent="center" p={2}>
-                    <CircularProgress size={24} />
-                  </Box>
-                ) : voices && voices.length > 0 ? (
-                  <Select
-                    value={selectedVoice || ''}
-                    onChange={(e) => setSelectedVoice(e.target.value)}
-                    label="Select Voice"
-                  >
-                    {voices.map((voice) => (
-                      <MenuItem 
-                        key={voice.id} 
-                        value={voice.id}
-                        sx={{
-                          display: 'flex',
-                          justifyContent: 'space-between',
-                          gap: 2
-                        }}
-                      >
-                        <Typography>{voice.name}</Typography>
-                        <Typography variant="caption" color="text.secondary">
-                          {voice.language}
-                        </Typography>
-                      </MenuItem>
-                    ))}
-                  </Select>
-                ) : (
-                  <Typography color="error">
-                    No voices available. Please try again later.
-                  </Typography>
-                )}
-              </FormControl>
-            </Box>
-
-            <Divider />
-
-            <Box>
-              <Typography variant="subtitle1" gutterBottom>
-                Display Settings
-              </Typography>
-              <Stack spacing={3}>
-                <FormControlLabel
-                  control={
-                    <Switch
-                      checked={darkMode}
-                      onChange={(e) => setDarkMode(e.target.checked)}
-                    />
-                  }
-                  label="Dark Mode"
-                />
-
-                <Box>
-                  <Typography gutterBottom>Font Size</Typography>
-                  <Slider
-                    value={fontSize}
-                    min={12}
-                    max={24}
-                    step={4}
-                    marks={fontSizes.map(size => ({
-                      value: size.value,
-                      label: size.label
-                    }))}
-                    onChange={(_, value) => setFontSize(value)}
-                  />
-                </Box>
-              </Stack>
-            </Box>
-
-            <Box sx={{ mt: 'auto' }}>
-              <Button
-                fullWidth
-                variant="contained"
-                onClick={() => setOpen(false)}
-              >
-                Done
-              </Button>
-            </Box>
-          </Stack>
-        </Box>
-      </Drawer>
-    </>
+        <div className="settings-section">
+          <div className="settings-section-title">
+            <Typography variant="subtitle1">Text to Speech</Typography>
+          </div>
+          <FormControl fullWidth>
+            <InputLabel>Voice</InputLabel>
+            <Select
+              value={selectedVoice || ''}
+              onChange={(e) => setSelectedVoice(e.target.value)}
+              disabled={loading}
+            >
+              {loading ? (
+                <MenuItem disabled>
+                  <CircularProgress size={20} />
+                  Loading voices...
+                </MenuItem>
+              ) : (
+                voices.map((voice) => (
+                  <MenuItem key={voice.id} value={voice.id}>
+                    {voice.name}
+                  </MenuItem>
+                ))
+              )}
+            </Select>
+          </FormControl>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 };
 

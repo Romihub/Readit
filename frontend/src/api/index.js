@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+export const API_URL = 'http://localhost:5000';
 
 const api = axios.create({
   baseURL: API_URL,
@@ -19,105 +19,91 @@ api.interceptors.response.use(
 );
 
 export const uploadDocument = async (file) => {
-  console.log('Uploading document:', file.name);
-  const formData = new FormData();
-  formData.append('file', file);
-
   try {
+    const formData = new FormData();
+    formData.append('file', file);
     const response = await api.post('/upload', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
     });
-    console.log('Upload response:', response.data);
     return response.data;
   } catch (error) {
-    console.error('Upload error:', error);
-    throw error;
-  }
-};
-
-export const getVoices = async () => {
-  console.log('Fetching voices');
-  try {
-    const response = await api.get('/voices');
-    console.log('Voices response:', response.data);
-    return Object.entries(response.data).map(([id, description]) => ({
-      id,
-      name: id.split('-').slice(2).join('-').replace('Neural', ''),
-      description,
-      language: id.split('-').slice(0, 2).join('-')
-    }));
-  } catch (error) {
-    console.error('Failed to fetch voices:', error);
-    return [];
-  }
-};
-
-export const textToSpeech = async (text, voiceId) => {
-  console.log('Converting text to speech:', { text: text.substring(0, 50) + '...', voiceId });
-  try {
-    const response = await api.post('/tts', 
-      { text, voice_id: voiceId },
-      { responseType: 'blob' }
-    );
-    
-    console.log('TTS response received, type:', response.data.type, 'size:', response.data.size);
-    
-    if (response.data.type !== 'audio/wav') {
-      throw new Error('Invalid audio format received');
-    }
-    
-    return response.data;
-  } catch (error) {
-    console.error('TTS error:', error);
-    throw error;
-  }
-};
-
-export const getBookmarks = async (sessionId) => {
-  try {
-    const response = await api.get(`/session/${sessionId}/bookmark`);
-    return response.data;
-  } catch (error) {
-    console.error('Failed to fetch bookmarks:', error);
-    throw error;
-  }
-};
-
-export const addBookmark = async (sessionId, bookmark) => {
-  try {
-    const response = await api.post(`/session/${sessionId}/bookmark`, bookmark);
-    return response.data;
-  } catch (error) {
-    console.error('Failed to add bookmark:', error);
-    throw error;
-  }
-};
-
-export const deleteBookmark = async (sessionId, bookmarkId) => {
-  try {
-    await api.delete(`/session/${sessionId}/bookmark`, {
-      params: { bookmark_id: bookmarkId }
-    });
-  } catch (error) {
-    console.error('Failed to delete bookmark:', error);
+    console.error('API Error:', error);
     throw error;
   }
 };
 
 export const askAIQuestion = async (sessionId, question, context) => {
   try {
-    console.log('Asking AI:', { sessionId, question, context: context.substring(0, 100) + '...' });
+    console.log('Asking AI:', { sessionId, question, context });
     const response = await api.post('/ask', {
-      session_id: sessionId,
+      sessionId,
       question,
-      context
+      context,
     });
-    console.log('AI response:', response.data);
     return response.data.response;
   } catch (error) {
-    console.error('Error getting AI response:', error);
+    console.error('API Error:', error.response?.data || error);
+    throw error.response?.data || error;
+  }
+};
+
+export const getVoices = async () => {
+  try {
+    const response = await api.get('/api/voices');
+    return response.data;
+  } catch (error) {
+    console.error('Failed to fetch voices:', error);
+    throw error;
+  }
+};
+
+export const textToSpeech = async (text, voice) => {
+  try {
+    const response = await api.post('/text-to-speech', { text, voice }, {
+      responseType: 'blob',
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Failed to convert text to speech:', error);
+    throw error;
+  }
+};
+
+export const addBookmark = async (sessionId, segment, note) => {
+  try {
+    if (!sessionId || !segment) {
+      throw new Error('Missing required fields: sessionId and segment are required');
+    }
+    
+    const response = await api.post('/bookmarks', {
+      sessionId,
+      segment,
+      note: note || ''
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Failed to add bookmark:', error);
+    throw error.response?.data?.error || error.message || error;
+  }
+};
+
+export const getBookmarks = async (sessionId) => {
+  try {
+    const response = await api.get(`/bookmarks/${sessionId}`);
+    return response.data;
+  } catch (error) {
+    console.error('Failed to get bookmarks:', error);
+    throw error;
+  }
+};
+
+export const deleteBookmark = async (bookmarkId) => {
+  try {
+    await api.delete(`/bookmarks/${bookmarkId}`);
+  } catch (error) {
+    console.error('Failed to delete bookmark:', error);
     throw error;
   }
 };

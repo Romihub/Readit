@@ -4,8 +4,71 @@
 }
 
 .ai-assistant-container {
-  padding: 20px;
-  margin: 20px 0;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background-color: var(--background-color);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.chat-header {
+  padding: 16px;
+  background-color: var(--primary-color);
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.chat-messages {
+  flex-grow: 1;
+  padding: 16px;
+  overflow-y: auto;
+  background-color: var(--background-color);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.message {
+  padding: 0.75rem;
+  border-radius: 8px;
+  max-width: 80%;
+}
+
+.user-message {
+  background-color: #e3f2fd;
+  align-self: flex-end;
+}
+
+.assistant-message {
+  background-color: #f5f5f5;
+  align-self: flex-start;
+}
+
+.chat-input {
+  display: flex;
+  gap: 8px;
+  padding: 16px;
+  background-color: var(--background-color);
+  border-top: 1px solid var(--border-color);
+}
+
+.chat-input .MuiTextField-root {
+  flex-grow: 1;
+}
+
+.chat-input .MuiIconButton-root {
+  align-self: center;
+}
+
+.voice-button {
+  color: #1976d2;
+}
+
+.voice-button.recording {
+  color: #f44336;
 }
 
 .question-form {
@@ -16,30 +79,31 @@
 
 .question-input {
   display: flex;
-  gap: 10px;
-  margin: 20px 0;
-  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+  align-items: flex-start;
 }
 
 .ask-button {
-  min-width: 100px;
+  margin-top: 8px !important;
+  min-width: 100px !important;
 }
 
 .mic-button {
+  margin-top: 8px !important;
   min-width: 40px !important;
   width: 40px !important;
   height: 40px !important;
 }
 
 .error-message {
-  margin: 10px 0;
+  margin: 16px 0;
 }
 
 .answer-container {
-  background-color: #f5f5f5;
-  padding: 15px;
-  border-radius: 4px;
-  margin-top: 20px;
+  margin-top: 16px;
+  padding: 16px;
+  background-color: var(--secondary-color);
 }
 
 .answer-container p {
@@ -50,4 +114,24 @@
   color: #4caf50;
   font-size: 2rem !important;
   margin-right: 10px;
+}
+
+/* Dark mode styles */
+[data-theme='dark'] .ai-assistant-container {
+  background-color: #424242;
+}
+
+[data-theme='dark'] .chat-header,
+[data-theme='dark'] .chat-input {
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+[data-theme='dark'] .user-message {
+  background-color: #1565c0;
+  color: white;
+}
+
+[data-theme='dark'] .assistant-message {
+  background-color: #616161;
+  color: white;
 }

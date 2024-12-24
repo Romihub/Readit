@@ -16,6 +16,7 @@ export const AppProvider = ({ children }) => {
   const [currentSegment, setCurrentSegment] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentPosition, setCurrentPosition] = useState(0);
+  const [bookmarks, setBookmarks] = useState([]);
   const [error, setError] = useState(null);
 
   const value = {
@@ -29,6 +30,8 @@ export const AppProvider = ({ children }) => {
     setIsPlaying,
     currentPosition,
     setCurrentPosition,
+    bookmarks,
+    setBookmarks,
     error,
     setError,
   };

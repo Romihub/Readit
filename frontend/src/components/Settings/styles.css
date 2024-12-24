@@ -6,7 +6,10 @@
 }
 
 .settings-container {
-  padding: 24px;
+  padding: 1.5rem;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -19,6 +22,11 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
+  margin-bottom: 1.5rem;
+}
+
+.settings-section:last-child {
+  margin-bottom: 0;
 }
 
 .settings-section-title {
@@ -26,18 +34,23 @@
   margin-bottom: 8px;
 }
 
-.settings-drawer {
-  width: 300px;
+.settings-title {
+  margin-bottom: 1rem;
+  color: #1976d2;
+  font-weight: 500;
 }
 
-.settings-drawer .MuiDrawer-paper {
-  width: 300px;
-  padding: 1rem;
+.slider-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
 }
 
-.font-size-slider {
-  width: 150px;
-  margin: 0 1rem;
+.info-icon {
+  margin-left: 0.5rem;
+  color: #666;
+  cursor: help;
 }
 
 .voice-select {
@@ -71,4 +84,17 @@
 .settings-footer {
   margin-top: auto;
   padding-top: 24px;
+}
+
+/* Dark mode styles */
+[data-theme='dark'] .settings-container {
+  background-color: #424242;
+}
+
+[data-theme='dark'] .settings-title {
+  color: #90caf9;
+}
+
+[data-theme='dark'] .info-icon {
+  color: #bdbdbd;
 }

@@ -14,16 +14,8 @@ logger = logging.getLogger(__name__)
 
 def create_app():
     app = Flask(__name__)
+    CORS(app)  # Enable CORS for all routes
     
-    # Enable CORS for all routes with proper configuration
-    CORS(app, resources={
-        r"/*": {
-            "origins": ["http://localhost:3000"],
-            "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-            "allow_headers": ["Content-Type"]
-        }
-    })
-
     # Initialize database
     engine = create_engine('sqlite:///readit.db')
     Base.metadata.create_all(engine)

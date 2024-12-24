@@ -20,10 +20,53 @@
   align-items: center;
   padding: 1rem;
   border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+  margin-bottom: 1rem;
+}
+
+.bookmarks-container {
+  padding: 16px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.add-bookmark-section {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.add-bookmark {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  align-items: flex-start;
+}
+
+.bookmark-note-input {
+  flex-grow: 1;
+}
+
+.add-bookmark-button {
+  white-space: nowrap;
+}
+
+.bookmarks-list {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 0.5rem;
 }
 
 .bookmark-item {
-  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  margin-bottom: 0.5rem;
+  padding: 0.5rem;
+  border-radius: 4px;
+  background-color: rgba(0, 0, 0, 0.02);
+  transition: background-color 0.2s ease;
+}
+
+.bookmark-item:hover {
+  background-color: rgba(0, 0, 0, 0.04);
 }
 
 .bookmark-item .MuiListItemSecondaryAction-root {
@@ -32,4 +75,35 @@
 
 .bookmark-item .MuiListItemText-secondary {
   white-space: pre-wrap;
+}
+
+.delete-bookmark-button {
+  opacity: 0.6;
+  transition: opacity 0.2s ease;
+}
+
+.delete-bookmark-button:hover {
+  opacity: 1;
+}
+
+.error-message {
+  color: #f44336;
+  margin: 8px 0;
+  padding: 0.5rem;
+  border-radius: 4px;
+  background-color: #ffebee;
+}
+
+/* Dark mode styles */
+[data-theme='dark'] .bookmark-item {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+[data-theme='dark'] .bookmark-item:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+[data-theme='dark'] .error-message {
+  background-color: #c62828;
+  color: white;
 }
